@@ -4,7 +4,7 @@ supabase==2.3.0
 groq==0.4.2
 langchain-groq==0.0.1
 langchain-core==0.1.52
-langchain-community==0.0.20
+langchain-community==0.0.38
 langchain-text-splitters==0.0.1
 sentence-transformers==2.3.1
 python-dotenv==1.0.0
