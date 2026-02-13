@@ -1,0 +1,207 @@
+"""
+src/core/chat/llm_handler.py
+Handler LLM per chat con RAG context
+"""
+import logging
+from typing import List, Dict, Optional
+from groq import Groq
+from openai import OpenAI
+
+logger = logging.getLogger(__name__)
+
+class LLMHandler:
+    """
+    Handler unificato per LLM (Groq/OpenAI) con supporto RAG.
+    """
+    
+    def __init__(
+        self,
+        provider: str = "groq",
+        groq_api_key: str = None,
+        openai_api_key: str = None
+    ):
+        self.provider = provider
+        
+        if provider == "groq":
+            if not groq_api_key:
+                raise ValueError("GROQ_API_KEY richiesta")
+            self.client = Groq(api_key=groq_api_key)
+            self.model = "llama-3.1-70b-versatile"
+        elif provider == "openai":
+            if not openai_api_key:
+                raise ValueError("OPENAI_API_KEY richiesta")
+            self.client = OpenAI(api_key=openai_api_key)
+            self.model = "gpt-4-turbo-preview"
+        else:
+            raise ValueError(f"Provider non supportato: {provider}")
+        
+        logger.info(f"✅ LLM Handler: {provider} ({self.model})")
+    
+    def chat(
+        self,
+        messages: List[Dict],
+        rag_context: str = None,
+        temperature: float = 0.1,
+        max_tokens: int = 2000,
+        stream: bool = False
+    ):
+        """
+        Chiamata LLM con context RAG opzionale.
+        
+        Args:
+            messages: Lista messaggi chat [{'role': 'user', 'content': '...'}]
+            rag_context: Context da RAG (prepended al primo messaggio user)
+            temperature: Creatività (0-1)
+            max_tokens: Max token risposta
+            stream: Streaming response (True per UI real-time)
+        
+        Returns:
+            Response object o generator (se stream=True)
+        """
+        # Prepara messaggi
+        chat_messages = self._prepare_messages(messages, rag_context)
+        
+        # System prompt
+        system_prompt = self._get_system_prompt()
+        final_messages = [
+            {"role": "system", "content": system_prompt},
+            *chat_messages
+        ]
+        
+        # Chiamata LLM
+        if self.provider == "groq":
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=final_messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stream=stream
+            )
+        else:  # openai
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=final_messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stream=stream
+            )
+        
+        return response
+    
+    def _prepare_messages(self, messages: List[Dict], rag_context: str = None) -> List[Dict]:
+        """Prepara messaggi con RAG context"""
+        if not rag_context:
+            return messages
+        
+        # Trova primo messaggio user e prepend context
+        prepared = []
+        context_added = False
+        
+        for msg in messages:
+            if msg['role'] == 'user' and not context_added:
+                # Prepend context al primo messaggio user
+                prepared.append({
+                    'role': 'user',
+                    'content': f"{rag_context}\n\n**DOMANDA UTENTE:**\n{msg['content']}"
+                })
+                context_added = True
+            else:
+                prepared.append(msg)
+        
+        return prepared
+    
+    def _get_system_prompt(self) -> str:
+        """System prompt per assistente EdilMind"""
+        return """Sei l'assistente AI di EdilMind, esperto in gare d'appalto pubbliche italiane.
+
+**COMPETENZE:**
+- Codice Appalti (D.Lgs 36/2023)
+- Procedure gara e requisiti SOA
+- Normativa CAM (Criteri Ambientali Minimi)
+- Interpretazione bandi e disciplinari
+- Strategie partecipazione (ATI, Avvalimento, etc.)
+
+**STILE:**
+- Risposte precise e pragmatiche
+- Cita sempre fonti normative quando disponibili
+- Usa linguaggio tecnico ma comprensibile
+- Focus su azioni concrete per l'impresa
+- Segnala sempre rischi legali/normativi
+
+**LIMITAZIONI:**
+- Non dare pareri legali vincolanti (suggerisci consulenza legale per casi complessi)
+- Se mancano informazioni, chiedi dettagli invece di assumere
+- Distingui chiaramente tra obblighi di legge e best practices
+
+Rispondi in italiano. Usa markdown per formattazione."""
+
+    def extract_text(self, response) -> str:
+        """Estrae testo da response object"""
+        if hasattr(response, 'choices'):
+            return response.choices[0].message.content
+        return str(response)
+
+
+# ============================================================================
+# UTILITY: Chat con RAG integrato
+# ============================================================================
+
+def chat_with_rag(
+    user_message: str,
+    chat_history: List[Dict],
+    rag_engine,
+    llm_handler: LLMHandler
+) -> tuple[str, List[Dict]]:
+    """
+    Chat completa con RAG automatico.
+    
+    Args:
+        user_message: Messaggio utente corrente
+        chat_history: Storia chat precedente
+        rag_engine: Istanza RAGEngine
+        llm_handler: Istanza LLMHandler
+    
+    Returns:
+        (risposta_assistant, fonti_rag)
+    """
+    # 1. Query RAG
+    rag_results = rag_engine.query(user_message, top_k=3)
+    
+    # 2. Build context
+    rag_context = rag_engine.build_context(rag_results, max_tokens=2000)
+    
+    # 3. Prepara messaggi
+    messages = chat_history + [{"role": "user", "content": user_message}]
+    
+    # 4. Chiamata LLM
+    response = llm_handler.chat(
+        messages=messages,
+        rag_context=rag_context if rag_results else None,
+        stream=False
+    )
+    
+    # 5. Estrai risposta
+    assistant_message = llm_handler.extract_text(response)
+    
+    return assistant_message, rag_results
+
+
+if __name__ == "__main__":
+    # Test
+    import os
+    from core.rag.rag_engine import RAGEngine
+    
+    rag = RAGEngine()
+    llm = LLMHandler(
+        provider="groq",
+        groq_api_key=os.getenv("GROQ_API_KEY")
+    )
+    
+    history = []
+    question = "Quali sono le soglie per affidamento diretto?"
+    
+    answer, sources = chat_with_rag(question, history, rag, llm)
+    
+    print(f"Q: {question}")
+    print(f"A: {answer}")
+    print(f"\nFonti: {len(sources)}")

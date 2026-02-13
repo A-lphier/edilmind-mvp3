@@ -1,0 +1,100 @@
+# FAQ APPALTI PUBBLICI - EdilMind KB
+
+## Domande Frequenti Appalti Pubblici
+
+### Cos'è il DGUE?
+Il Documento di Gara Unico Europeo (DGUE) è un'autodichiarazione che le imprese usano come prova preliminare del possesso dei requisiti per partecipare a gare pubbliche UE. Sostituisce numerosi certificati e documenti.
+
+### Come si calcola il ribasso d'asta?
+Il ribasso si calcola come percentuale di sconto sull'importo a base d'asta.
+Formula: Ribasso % = ((Base d'Asta - Offerta) / Base d'Asta) × 100
+
+Esempio: Base €100.000, Offerta €85.000 → Ribasso = 15%
+
+ATTENZIONE: Verificare sempre le soglie di anomalia dell'offerta.
+
+### Cosa serve per qualificarsi SOA?
+Per ottenere l'Attestazione SOA servono:
+
+1. Requisiti economico-finanziari (fatturato, patrimonio netto)
+2. Requisiti tecnico-organizzativi (attrezzature, personale tecnico)
+3. Esecuzione di lavori certificati nelle categorie richieste
+4. Certificazione ISO 9001 (obbligatoria per alcune classifiche)
+
+Le categorie più comuni in edilizia:
+- OG1: Edifici civili e industriali
+- OG3: Strade, autostrade, ponti
+- OG11: Impianti tecnologici
+
+### Qual è la soglia per l'affidamento diretto?
+Con il nuovo Codice Appalti (D.Lgs 36/2023):
+
+- Lavori: fino a €150.000 (affidamento diretto)
+- Servizi/Forniture: fino a €140.000 (affidamento diretto)
+- Sopra queste soglie: procedura negoziata o aperta
+
+### Cos'è il subappalto e quali sono i limiti?
+Il subappalto è l'affidamento a terzi di parte dei lavori aggiudicati.
+
+Limiti:
+- Max 50% dell'importo contrattuale (salvo deroghe)
+- Obbligo di indicazione in offerta o autorizzazione stazione appaltante
+- Responsabilità solidale per pagamenti e obblighi contributivi
+
+### Cosa sono i CAM in edilizia?
+I Criteri Ambientali Minimi (CAM) sono requisiti ambientali obbligatori per appalti pubblici verdi.
+
+In edilizia (DM 23/06/2022) riguardano:
+- Efficienza energetica edifici
+- Materiali da costruzione riciclati
+- Riduzione emissioni CO2
+- Gestione rifiuti cantiere
+
+Obbligo per tutti gli appalti di progettazione e lavori pubblici.
+
+### Come funziona l'avvalimento?
+L'avvalimento permette di usare i requisiti di capacità economico-finanziaria e tecnico-organizzativa di altre imprese per partecipare a una gara.
+
+Requisiti:
+- Contratto di avvalimento con impresa ausiliaria
+- Dichiarazione impegno dell'ausiliaria
+- Dimostrazione disponibilità risorse
+
+Attenzione: Non si può usare per requisiti di idoneità professionale (es. iscrizione CCIAA).
+
+### Cos'è il RTI (Raggruppamento Temporaneo Imprese)?
+Il RTI è un'associazione temporanea di più imprese per partecipare insieme a una gara.
+
+Tipi:
+- RTI Orizzontale: imprese dello stesso settore
+- RTI Verticale: imprese di settori diversi (con % lavori prestabilite)
+
+Requisiti sommati tra i partecipanti con regole specifiche per mandataria e mandanti.
+
+### Cosa sono le garanzie richieste nelle gare?
+Garanzie principali:
+
+1. **Garanzia provvisoria** (2% base d'asta): per partecipare alla gara
+2. **Garanzia definitiva** (10% importo aggiudicato): all'aggiudicazione
+3. **Polizza RC** (Responsabilità Civile): per esecuzione lavori
+
+Riduzioni possibili con certificazioni (ISO 9001, ISO 14001, rating legalità).
+
+### Come si valuta l'anomalia dell'offerta?
+Quando un'offerta è troppo bassa, scatta il procedimento di verifica anomalia.
+
+Soglie:
+- Calcolo soglia di anomalia con metodo matematico-statistico
+- Stazione appaltante può verificare anche sotto soglia
+
+L'impresa deve giustificare:
+- Costi materie prime
+- Costi manodopera
+- Oneri sicurezza
+- Marginalità
+
+Se la giustificazione non è adeguata: esclusione dalla gara.
+
+---
+
+*Ultimo aggiornamento: Febbraio 2026 - EdilMind Knowledge Base*

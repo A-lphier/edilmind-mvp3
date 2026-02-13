@@ -1,0 +1,269 @@
+"""
+src/ui/app.py
+UI Streamlit Multi-Page EdilMind Enterprise
+"""
+import streamlit as st
+import sys
+from pathlib import Path
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from core.scrapers.anac_scraper import ANACScraper
+from data.province_italia import PROVINCE_ITALIA, get_province_list, get_regioni_list
+from core.rag.rag_engine import RAGEngine
+from core.chat.llm_handler import LLMHandler, chat_with_rag
+from core.geo.italia_registry import get_province_dropdown, geocode
+import pydeck as pdk
+import pandas as pd
+import os
+
+# ============================================================================
+# PAGE CONFIG
+# ============================================================================
+
+st.set_page_config(
+    page_title="EdilMind Enterprise",
+    page_icon="🏗️",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# ============================================================================
+# INIT SESSION STATE
+# ============================================================================
+
+if "rag_engine" not in st.session_state:
+    st.session_state.rag_engine = RAGEngine()
+
+# Initialize scraper
+if "scraper" not in st.session_state:
+    st.session_state.scraper = ANACScraper()
+    st.session_state.bandi_cache = {}
+
+if "llm_handler" not in st.session_state:
+    # Debug: forza reload .env
+    from dotenv import load_dotenv
+    load_dotenv(override=True)
+    
+    groq_key = os.getenv("GROQ_API_KEY")
+    
+    # Debug print
+    if groq_key:
+        print(f"🔍 DEBUG: GROQ_API_KEY trovata (primi 10 char): {groq_key[:10]}...")
+        # FORCE MODEL: llama-3.1-8b-instant
+        llm_temp = LLMHandler(provider="groq", groq_api_key=groq_key)
+        llm_temp.model = "llama-3.1-8b-instant"  # Override
+        st.session_state.llm_handler = llm_temp
+        print(f"🔧 FORCED MODEL: {llm_temp.model}")
+        print("✅ LLM Handler inizializzato con successo")
+    else:
+        print("❌ GROQ_API_KEY NON TROVATA nel file .env")
+        st.session_state.llm_handler = None
+
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+if "selected_provincia" not in st.session_state:
+    st.session_state.selected_provincia = None
+
+# ============================================================================
+# SIDEBAR
+# ============================================================================
+
+with st.sidebar:
+    st.title("🏗️ EdilMind Enterprise")
+    st.markdown("---")
+    
+    # Geo Selection
+    st.subheader("📍 Geolocalizzazione")
+    
+    province_options = get_province_dropdown()
+    selected = st.selectbox(
+        "Provincia/Area Bando",
+        options=[p['label'] for p in province_options],
+        key="provincia_selector"
+    )
+    
+    if selected:
+        # Trova provincia selezionata
+        provincia_data = next(p for p in province_options if p['label'] == selected)
+        st.session_state.selected_provincia = provincia_data
+        
+        st.info(f"**Regione:** {provincia_data['regione']}")
+        st.info(f"**Coordinate:** {provincia_data['lat']:.4f}, {provincia_data['lon']:.4f}")
+    
+    st.markdown("---")
+    
+    # KB Stats
+    st.subheader("📚 Knowledge Base")
+    # Statistiche KB
+# Statistiche KB
+stats = st.session_state.rag_engine.get_stats()
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric("📚 Documenti", stats.get("total_documents", 0))
+with col2:
+    st.metric("💾 Dimensione", f"{stats.get('total_size_mb', 0)} MB")
+with col3:
+    doc_types = stats.get("document_types", {})
+    if doc_types:
+        main_type = list(doc_types.keys())[0] if doc_types else "N/A"
+        st.metric("📄 Tipi", len(doc_types))
+    else:
+        st.metric("📄 Tipi", 0)
+
+# ============================================================================
+# MAIN PAGE
+# ============================================================================
+
+st.title("🏗️ EdilMind: Assistente Intelligente Gare Pubbliche")
+
+# Tabs
+tab_chat, tab_map, tab_docs = st.tabs(["💬 Chat Assistente", "🗺️ Mappa Bandi", "📄 Documenti KB"])
+
+# ────────────────────────────────────────────────────────────────────────────
+# TAB 1: CHAT CON RAG
+# ────────────────────────────────────────────────────────────────────────────
+
+with tab_chat:
+    st.subheader("💬 Chat con Assistente AI")
+    
+    if not st.session_state.llm_handler:
+        st.error("⚠️ GROQ_API_KEY non configurata. Configura nel file .env")
+        st.stop()
+    
+    # Display chat history
+    for msg in st.session_state.chat_history:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+    
+    # Chat input
+    if prompt := st.chat_input("Chiedi qualsiasi cosa su gare, requisiti, normative..."):
+        # Add user message
+        st.session_state.chat_history.append({"role": "user", "content": prompt})
+        
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        
+        # Get response with RAG
+        with st.chat_message("assistant"):
+            with st.spinner("🤔 Pensando..."):
+                try:
+                    answer, sources = chat_with_rag(
+                        user_message=prompt,
+                        chat_history=st.session_state.chat_history[:-1],  # Exclude last user msg
+                        rag_engine=st.session_state.rag_engine,
+                        llm_handler=st.session_state.llm_handler
+                    )
+                    
+                    st.markdown(answer)
+                    
+                    # Show sources
+                    if sources:
+                        with st.expander("📎 Fonti utilizzate"):
+                            for src in sources:
+                                st.markdown(f"**{src['metadata'].get('titolo', 'N/D')}** "
+                                          f"({src['category']}) - "
+                                          f"Rilevanza: {src['relevance_score']:.1%}")
+                                st.caption(src['text'][:200] + "...")
+                                st.markdown("---")
+                    
+                    # Add to history
+                    st.session_state.chat_history.append({"role": "assistant", "content": answer})
+                
+                except Exception as e:
+                    st.error(f"❌ Errore: {e}")
+    
+    # Clear chat button
+    if st.button("🗑️ Nuova Conversazione"):
+        st.session_state.chat_history = []
+        st.rerun()
+
+# ────────────────────────────────────────────────────────────────────────────
+# TAB 2: MAPPA
+# ────────────────────────────────────────────────────────────────────────────
+
+with tab_map:
+    st.subheader("🗺️ Geolocalizzazione Bandi")
+    
+    if st.session_state.selected_provincia:
+        prov = st.session_state.selected_provincia
+        
+        # Crea DataFrame per mappa
+        map_data = pd.DataFrame({
+            'lat': [prov['lat']],
+            'lon': [prov['lon']],
+            'name': [prov['nome']]
+        })
+        
+        # PyDeck map
+        st.pydeck_chart(pdk.Deck(
+            map_style='mapbox://styles/mapbox/light-v9',
+            initial_view_state=pdk.ViewState(
+                latitude=prov['lat'],
+                longitude=prov['lon'],
+                zoom=8,
+                pitch=50,
+            ),
+            layers=[
+                pdk.Layer(
+                    'ScatterplotLayer',
+                    data=map_data,
+                    get_position='[lon, lat]',
+                    get_color='[200, 30, 0, 160]',
+                    get_radius=15000,
+                ),
+            ],
+        ))
+        
+        st.info(f"📍 **Area selezionata:** {prov['nome']} ({prov['regione']})")
+    else:
+        st.warning("Seleziona una provincia dalla sidebar")
+
+# ────────────────────────────────────────────────────────────────────────────
+# TAB 3: DOCUMENTI KB
+# ────────────────────────────────────────────────────────────────────────────
+
+with tab_docs:
+    st.subheader("📄 Documenti Knowledge Base")
+    
+    st.markdown("""
+    **Cartelle monitorate:**
+    - `data/knowledge_base/normative/` - Leggi, D.Lgs, DPR
+    - `data/knowledge_base/circolari/` - Circolari ANAC/MIT
+    - `data/knowledge_base/giurisprudenza/` - Sentenze TAR/CdS
+    - `data/knowledge_base/tecniche/` - Norme UNI/ISO
+    
+    📥 **Aggiungi documenti:** Copia file nelle cartelle sopra per auto-vettorializzazione
+    """)
+    
+    # Upload documenti
+    st.markdown("---")
+    st.subheader("📤 Upload Documento")
+    
+    uploaded_file = st.file_uploader(
+        "Carica PDF/DOCX/TXT",
+        type=['pdf', 'docx', 'txt'],
+        help="Il documento sarà automaticamente vettorializzato"
+    )
+    
+    if uploaded_file:
+        category = st.selectbox(
+            "Categoria",
+            options=['normative', 'circolari', 'giurisprudenza', 'tecniche']
+        )
+        
+        if st.button("💾 Salva e Vettorializza"):
+            with st.spinner("Processing..."):
+                try:
+                    # Save file
+                    save_path = Path(f"data/knowledge_base/{category}/{uploaded_file.name}")
+                    save_path.write_bytes(uploaded_file.getbuffer())
+                    
+                    st.success(f"✅ File salvato: {uploaded_file.name}")
+                    st.info("🔄 La vettorializzazione avverrà automaticamente in 2-5 secondi")
+                    
+                except Exception as e:
+                    st.error(f"❌ Errore: {e}")

@@ -1,0 +1,27 @@
+﻿# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Dati
+.env
+data/pdf_bandi/*.pdf
+data/cache/*.json
+data/uploads/*
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit secrets
+.streamlit/secrets.toml

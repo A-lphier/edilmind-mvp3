@@ -1,0 +1,13 @@
+﻿# Core dependencies
+supabase==2.3.4
+requests==2.31.0
+python-dotenv==1.0.1
+PyPDF2==3.0.1
+
+# UI
+streamlit==1.31.0
+plotly==5.18.0
+pandas==2.1.4
+
+# Optional AI
+groq==0.4.1

@@ -1,0 +1,61 @@
+﻿DECRETO LEGISLATIVO 31 marzo 2023, n. 36
+Codice dei contratti pubblici
+
+TITOLO I - PRINCIPI GENERALI
+
+Art. 1 - Oggetto e finalità
+
+1. Il presente codice disciplina i contratti di appalto e di concessione delle amministrazioni 
+   aggiudicatrici e degli enti aggiudicatori aventi ad oggetto l'acquisizione di servizi, 
+   forniture, lavori e opere, nonché i concorsi pubblici di progettazione.
+
+2. Il codice persegue obiettivi di:
+   a) efficienza nell'utilizzo delle risorse
+   b) tempestività nell'esecuzione
+   c) qualità delle prestazioni
+   d) massima trasparenza
+   e) parità di trattamento
+
+Art. 2 - Soglie di rilevanza europea
+
+1. Le soglie di rilevanza comunitaria sono fissate in:
+   a) Euro 140.000 per servizi e forniture (settori ordinari)
+   b) Euro 215.000 per lavori (settori ordinari)
+   c) Euro 5.382.000 per lavori (settori ordinari)
+
+2. Gli importi sono al netto dell'IVA.
+
+Art. 50 - Requisiti di partecipazione
+
+1. Possono partecipare alle procedure di affidamento:
+   a) Imprese singole
+   b) Raggruppamenti temporanei di imprese (RTI/ATI)
+   c) Consorzi ordinari
+   d) GEIE (Gruppi Europei di Interesse Economico)
+
+2. I requisiti di qualificazione SOA sono obbligatori per:
+   - Lavori di importo superiore a 150.000 euro
+   - Categorie generali (OG) e specializzate (OS)
+
+3. Le classifiche SOA sono otto (I-VIII) con limiti crescenti di importo:
+   I:    fino a    258.000 euro
+   II:   fino a    516.000 euro
+   III:  fino a  1.033.000 euro
+   IV:   fino a  2.066.000 euro
+   V:    fino a  3.099.000 euro
+   VI:   fino a  5.165.000 euro
+   VII:  fino a 10.329.000 euro
+   VIII: importo illimitato
+
+Art. 108 - Criteri di aggiudicazione
+
+1. L'affidamento avviene con il criterio:
+   a) Dell'offerta economicamente più vantaggiosa (OEPV) - criterio ordinario
+   b) Del minor prezzo - solo in casi specifici previsti dalla legge
+
+2. L'OEPV individua la migliore offerta sulla base del miglior rapporto qualità/prezzo.
+
+Art. 120 - Revisione prezzi
+
+1. È obbligatorio inserire clausole di revisione prezzi nei contratti di durata superiore 
+   a 12 mesi, per adeguare i corrispettivi alle variazioni dei costi dei materiali e della manodopera.
