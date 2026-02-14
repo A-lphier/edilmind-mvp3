@@ -6,3 +6,5 @@ python-dotenv
 PyPDF2
 beautifulsoup4
 requests
+unstructured
+python-magic-bin
