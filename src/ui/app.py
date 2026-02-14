@@ -3,18 +3,11 @@ import pandas as pd
 from pathlib import Path
 import sys
 
-# Aggiungi src/ al path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core.scrapers.anac_scraper import ANACScraper
-# from data.province_italia import PROVINCE_ITALIA
-# from core.rag.rag_handler import LegalRAGHandler
-# from core.chat.llm_handler import LLMHandler, chat_with_rag
 import os
 
-# ====================================================================
-# CONFIG PAGINA
-# ====================================================================
 st.set_page_config(
     page_title="EdilMind - Scraper Gare ANAC",
     page_icon="🏗️",
@@ -22,47 +15,22 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ====================================================================
-# SESSION STATE
-# ====================================================================
-
-# RAG disabilitato per Streamlit Cloud
-# if "rag_engine" not in st.session_state:
-#     st.session_state.rag_engine = LegalRAGHandler(kb_dir="data/kb")
-
 if "scraper" not in st.session_state:
     st.session_state.scraper = ANACScraper()
-
-# LLM handler disabilitato per Streamlit Cloud
-# if "llm_handler" not in st.session_state:
-#     from dotenv import load_dotenv
-#     load_dotenv(override=True)
-#     groq_key = os.getenv("GROQ_API_KEY")
-#     if not groq_key:
-#         st.error("GROQ_API_KEY mancante!")
-#     else:
-#         st.session_state.llm_handler = LLMHandler()
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# ====================================================================
-# SIDEBAR
-# ====================================================================
 with st.sidebar:
     st.title("🏗️ EdilMind")
     st.caption("SaaS B2B per Matching Gare Edili")
     
-    # Menu navigazione
     page = st.radio(
         "Navigazione",
         ["🏠 Home", "📡 Scraper ANAC", "📄 Upload SOA", "💬 Chat Normativa"],
         label_visibility="collapsed"
     )
 
-# ====================================================================
-# HOME PAGE
-# ====================================================================
 if "Home" in page:
     st.title("🏗️ EdilMind - MVP Dashboard")
     
@@ -77,18 +45,8 @@ if "Home" in page:
     st.divider()
     
     st.subheader("🚀 Quick Start")
-    st.info("""
-    **Versione MVP (Streamlit Cloud):**
-    - ✅ Scraper ANAC funzionante
-    - ✅ Upload SOA PDF
-    - ⚠️ Chat RAG temporaneamente disabilitata (deploy in corso su Render.com)
-    
-    **Inizia da:** Scraper ANAC → carica bandi pubblici
-    """)
+    st.info("Versione MVP - Scraper ANAC funzionante. Chat RAG in deploy su Render.com")
 
-# ====================================================================
-# SCRAPER ANAC PAGE
-# ====================================================================
 elif "Scraper" in page:
     st.title("📡 Scraper Gare ANAC")
     
@@ -112,9 +70,6 @@ elif "Scraper" in page:
     if "bandi_df" in st.session_state and not st.session_state.bandi_df.empty:
         st.dataframe(st.session_state.bandi_df, use_container_width=True)
 
-# ====================================================================
-# UPLOAD SOA PAGE
-# ====================================================================
 elif "Upload SOA" in page:
     st.title("📄 Upload Attestazione SOA")
     
@@ -124,17 +79,7 @@ elif "Upload SOA" in page:
         st.success(f"✅ File caricato: {uploaded.name}")
         st.info("Parser SOA in sviluppo...")
 
-# ====================================================================
-# CHAT PAGE
-# ====================================================================
 elif "Chat" in page:
     st.title("💬 Chat Normativa Appalti")
     
-    st.warning("⚠️ Sistema RAG temporaneamente disabilitato. Deploy in corso su Render.com per supporto completo.")
-    
-    st.info("""
-    **Funzionalità previste:**
-    - Query semantica su Codice Appalti
-    - Analisi CAM (Criteri Ambientali Minimi)
-    - Guardrails requisiti SOA
-    """)
+    st.warning("Sistema RAG temporaneamente disabilitato. Deploy in corso su Render.com")
