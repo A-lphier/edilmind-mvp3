@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 import pandas as pd
 from pathlib import Path
 import sys
@@ -10,7 +10,7 @@ import os
 
 st.set_page_config(
     page_title="EdilMind - Scraper Gare ANAC",
-    page_icon="🏗️",
+    page_icon="???",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -22,17 +22,17 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
 with st.sidebar:
-    st.title("🏗️ EdilMind")
+    st.title("??? EdilMind")
     st.caption("SaaS B2B per Matching Gare Edili")
     
     page = st.radio(
         "Navigazione",
-        ["🏠 Home", "📡 Scraper ANAC", "📄 Upload SOA", "💬 Chat Normativa"],
+        ["?? Home", "?? Scraper ANAC", "?? Upload SOA", "?? Chat Normativa"],
         label_visibility="collapsed"
     )
 
 if "Home" in page:
-    st.title("🏗️ EdilMind - MVP Dashboard")
+    st.title("??? EdilMind - MVP Dashboard")
     
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -44,11 +44,11 @@ if "Home" in page:
     
     st.divider()
     
-    st.subheader("🚀 Quick Start")
+    st.subheader("?? Quick Start")
     st.info("Versione MVP - Scraper ANAC funzionante. Chat RAG in deploy su Render.com")
 
 elif "Scraper" in page:
-    st.title("📡 Scraper Gare ANAC")
+    st.title("?? Scraper Gare ANAC")
     
     with st.form("scraper_form"):
         col1, col2 = st.columns(2)
@@ -59,27 +59,27 @@ elif "Scraper" in page:
         with col2:
             max_results = st.number_input("Max risultati", 10, 50, 20)
         
-        submit = st.form_submit_button("🔍 Cerca Bandi", use_container_width=True)
+        submit = st.form_submit_button("?? Cerca Bandi", use_container_width=True)
     
     if submit:
         with st.spinner("Ricerca in corso..."):
-            bandi = st.session_state.scraper.scrape_bandi(keywords, max_results)
+            bandi = st.session_state.scraper.search(keywords, max_results)
             st.session_state.bandi_df = pd.DataFrame(bandi)
-            st.success(f"✅ Trovati {len(bandi)} bandi!")
+            st.success(f"? Trovati {len(bandi)} bandi!")
     
     if "bandi_df" in st.session_state and not st.session_state.bandi_df.empty:
         st.dataframe(st.session_state.bandi_df, use_container_width=True)
 
 elif "Upload SOA" in page:
-    st.title("📄 Upload Attestazione SOA")
+    st.title("?? Upload Attestazione SOA")
     
     uploaded = st.file_uploader("Carica PDF SOA", type=["pdf"])
     
     if uploaded:
-        st.success(f"✅ File caricato: {uploaded.name}")
+        st.success(f"? File caricato: {uploaded.name}")
         st.info("Parser SOA in sviluppo...")
 
 elif "Chat" in page:
-    st.title("💬 Chat Normativa Appalti")
+    st.title("?? Chat Normativa Appalti")
     
     st.warning("Sistema RAG temporaneamente disabilitato. Deploy in corso su Render.com")
