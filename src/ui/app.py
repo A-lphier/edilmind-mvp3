@@ -1,205 +1,140 @@
-"""
-src/ui/app.py
-UI Streamlit Multi-Page EdilMind Enterprise
-"""
-import streamlit as st
-import sys
+﻿import streamlit as st
+import pandas as pd
 from pathlib import Path
+import sys
 
-# Add src to path
+# Aggiungi src/ al path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core.scrapers.anac_scraper import ANACScraper
 # from data.province_italia import PROVINCE_ITALIA
-# # from core.rag.rag_handler import LegalRAGHandler
-# # from core.chat.llm_handler import LLMHandler, chat_with_rag
+# from core.rag.rag_handler import LegalRAGHandler
+# from core.chat.llm_handler import LLMHandler, chat_with_rag
 import os
 
-# ============================================================================
-# PAGE CONFIG
-# ============================================================================
-
+# ====================================================================
+# CONFIG PAGINA
+# ====================================================================
 st.set_page_config(
-    page_title="EdilMind Enterprise",
+    page_title="EdilMind - Scraper Gare ANAC",
     page_icon="🏗️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ============================================================================
-# INIT SESSION STATE
-# ============================================================================
+# ====================================================================
+# SESSION STATE
+# ====================================================================
 
+# RAG disabilitato per Streamlit Cloud
 # if "rag_engine" not in st.session_state:
-#         st.session_state.rag_engine = LegalRAGHandler(kb_dir="data/kb")
+#     st.session_state.rag_engine = LegalRAGHandler(kb_dir="data/kb")
 
 if "scraper" not in st.session_state:
     st.session_state.scraper = ANACScraper()
-    st.session_state.bandi_cache = {}
 
+# LLM handler disabilitato per Streamlit Cloud
 # if "llm_handler" not in st.session_state:
 #     from dotenv import load_dotenv
 #     load_dotenv(override=True)
-# 
 #     groq_key = os.getenv("GROQ_API_KEY")
-#     print(f"🔍 DEBUG: GROQ_API_KEY trovata (primi 10 char): {groq_key[:10] if groq_key else 'NESSUNA'}")
-# 
-#     forced_model = "llama-3.1-8b-instant"
-#     print(f"🔧 FORCED MODEL: {forced_model}")
-# 
-#     st.session_state.llm_handler = LLMHandler()
+#     if not groq_key:
+#         st.error("GROQ_API_KEY mancante!")
+#     else:
+#         st.session_state.llm_handler = LLMHandler()
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# ============================================================================
+# ====================================================================
 # SIDEBAR
-# ============================================================================
-
+# ====================================================================
 with st.sidebar:
-    st.title("🏗️ EdilMind Enterprise")
-    st.markdown("---")
+    st.title("🏗️ EdilMind")
+    st.caption("SaaS B2B per Matching Gare Edili")
     
-    # Geolocalizzazione
-    st.subheader("🔍 Geolocalizzazione")
-    
-    st.markdown("**Provincia/Area Bando**")
-    
-    # Lista province
-    province_options = [
-        "Bergamo (BG) - Lombardia",
-        "Milano (MI) - Lombardia", 
-        "Roma (RM) - Lazio",
-        "Napoli (NA) - Campania",
-        "Torino (TO) - Piemonte"
-    ]
-    
-    selected_label = st.selectbox(
-        "Provincia",
-        province_options,
-        index=0,
+    # Menu navigazione
+    page = st.radio(
+        "Navigazione",
+        ["🏠 Home", "📡 Scraper ANAC", "📄 Upload SOA", "💬 Chat Normativa"],
         label_visibility="collapsed"
     )
-    
-    # Parse provincia selezionata
-    nome = selected_label.split('(')[0].strip()
-    sigla = selected_label.split('(')[1].split(')')[0]
-    regione = selected_label.split(' - ')[1]
-    
-    selected_prov = {
-        'nome': nome,
-        'sigla': sigla,
-        'regione': regione,
-        'lat': 45.6983,
-        'lon': 9.6773
-    }
-    
-    if selected_prov:
-        st.success(f"✅ {selected_label}")
-        st.info(f"**Regione:** {selected_prov['regione']}")
-        st.info(f"**Coordinate:** {selected_prov['lat']:.4f}, {selected_prov['lon']:.4f}")
 
-    st.markdown("---")
+# ====================================================================
+# HOME PAGE
+# ====================================================================
+if "Home" in page:
+    st.title("🏗️ EdilMind - MVP Dashboard")
     
-    # RAG Stats
-#     st.subheader("📚 Knowledge Base")
-#     
-#     st.markdown("""
-#     **Sistema RAG Attivo:**
-#     - 📄 **Documenti:** 3 PDF normativi
-#     - 💾 **Vector Store:** Supabase (88 chunks)
-    - 🔍 **Embeddings:** Sentence Transformers
-    - 🤖 **LLM:** Groq Llama 3.1 70B
-    - ✅ **Citations:** Automatiche
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Bandi Caricati", len(st.session_state.get("bandi_df", pd.DataFrame())))
+    with col2:
+        st.metric("SOA Attive", 0)
+    with col3:
+        st.metric("Match Trovati", 0)
+    
+    st.divider()
+    
+    st.subheader("🚀 Quick Start")
+    st.info("""
+    **Versione MVP (Streamlit Cloud):**
+    - ✅ Scraper ANAC funzionante
+    - ✅ Upload SOA PDF
+    - ⚠️ Chat RAG temporaneamente disabilitata (deploy in corso su Render.com)
+    
+    **Inizia da:** Scraper ANAC → carica bandi pubblici
     """)
 
-    st.markdown("---")
+# ====================================================================
+# SCRAPER ANAC PAGE
+# ====================================================================
+elif "Scraper" in page:
+    st.title("📡 Scraper Gare ANAC")
     
-    # Navigation
-    st.subheader("📂 Navigazione")
-    
-    page = st.radio(
-        "Vai a:",
-        ["Chat Assistente", "Parser SOA", "Batch Parser", "Match Bando-SOA", "Mappa Bandi"],
-        label_visibility="collapsed"
-    )
-
-# ============================================================================
-# MAIN CONTENT
-# ============================================================================
-
-if page == "Chat Assistente":
-    st.title("💬 Chat con Assistente AI")
-    
-    # Chat container
-    chat_container = st.container()
-    
-    with chat_container:
-        # Display chat history
-        for msg in st.session_state.chat_history:
-            if msg["role"] == "user":
-                with st.chat_message("user"):
-                    st.markdown(msg["content"])
-            else:
-                with st.chat_message("assistant"):
-                    st.markdown(msg["content"])
-                    
-                    # Show sources if available
-                    if "sources" in msg and msg["sources"]:
-                        with st.expander("📎 Fonti utilizzate"):
-                            for src in msg["sources"]:
-                                st.markdown(f"- {src.get('source', 'N/A')}")
-    
-    # Chat input
-    user_input = st.chat_input("Fai una domanda sui bandi o normative...")
-    
-    if user_input:
-        # Add user message
-        st.session_state.chat_history.append({
-            "role": "user",
-            "content": user_input
-        })
+    with st.form("scraper_form"):
+        col1, col2 = st.columns(2)
         
-        # Display user message
-        with st.chat_message("user"):
-            st.markdown(user_input)
+        with col1:
+            keywords = st.text_input("Parole chiave", "edilizia lavori pubblici")
         
-        # Get response with RAG
-        with st.chat_message("assistant"):
-            with st.spinner("🔍 Analisi in corso..."):
-                try:
-                    answer = "?? Sistema RAG in manutenzione. Usa Scraper ANAC e Upload SOA."`nsources = []
-                    
-                    st.markdown(answer)
-                    
-                    # Show sources
-                    if sources:
-                        with st.expander("📎 Fonti utilizzate"):
-                            for src in sources:
-                                st.markdown(f"- {src.get('source', 'N/A')}")
-                    
-                    # Add to history
-                    st.session_state.chat_history.append({
-                        "role": "assistant",
-                        "content": answer,
-                        "sources": sources
-                    })
-                    
-                except Exception as e:
-                    st.error(f"❌ Errore: {e}")
+        with col2:
+            max_results = st.number_input("Max risultati", 10, 50, 20)
+        
+        submit = st.form_submit_button("🔍 Cerca Bandi", use_container_width=True)
+    
+    if submit:
+        with st.spinner("Ricerca in corso..."):
+            bandi = st.session_state.scraper.scrape_bandi(keywords, max_results)
+            st.session_state.bandi_df = pd.DataFrame(bandi)
+            st.success(f"✅ Trovati {len(bandi)} bandi!")
+    
+    if "bandi_df" in st.session_state and not st.session_state.bandi_df.empty:
+        st.dataframe(st.session_state.bandi_df, use_container_width=True)
 
-elif page == "Parser SOA":
-    from pages.soa_parser_page import render_soa_parser
-    render_soa_parser()
+# ====================================================================
+# UPLOAD SOA PAGE
+# ====================================================================
+elif "Upload SOA" in page:
+    st.title("📄 Upload Attestazione SOA")
+    
+    uploaded = st.file_uploader("Carica PDF SOA", type=["pdf"])
+    
+    if uploaded:
+        st.success(f"✅ File caricato: {uploaded.name}")
+        st.info("Parser SOA in sviluppo...")
 
-elif page == "Batch Parser":
-    from pages.batch_parser_page import render_batch_parser
-    render_batch_parser()
-
-elif page == "Match Bando-SOA":
-    from pages.match_page import render_match_page
-    render_match_page()
-
-elif page == "Mappa Bandi":
-    from pages.mappa_bandi_page import render_mappa_bandi
-    render_mappa_bandi()
+# ====================================================================
+# CHAT PAGE
+# ====================================================================
+elif "Chat" in page:
+    st.title("💬 Chat Normativa Appalti")
+    
+    st.warning("⚠️ Sistema RAG temporaneamente disabilitato. Deploy in corso su Render.com per supporto completo.")
+    
+    st.info("""
+    **Funzionalità previste:**
+    - Query semantica su Codice Appalti
+    - Analisi CAM (Criteri Ambientali Minimi)
+    - Guardrails requisiti SOA
+    """)
