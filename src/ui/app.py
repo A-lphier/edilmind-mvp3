@@ -11,8 +11,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core.scrapers.anac_scraper import ANACScraper
 # from data.province_italia import PROVINCE_ITALIA
-from core.rag.rag_handler import LegalRAGHandler
-from core.chat.llm_handler import LLMHandler, chat_with_rag
+# from core.rag.rag_handler import LegalRAGHandler
+# from core.chat.llm_handler import LLMHandler, chat_with_rag
 import os
 
 # ============================================================================

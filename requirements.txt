@@ -1,4 +1,4 @@
-﻿streamlit==1.54.0
+﻿streamlit
 pandas
 supabase
 groq
@@ -6,11 +6,3 @@ python-dotenv
 PyPDF2
 beautifulsoup4
 requests
-unstructured[pdf]
-unstructured-inference
-pdfminer.six
-pillow-heif
-pi-heif
-opencv-python-headless
-nltk
-filetype
