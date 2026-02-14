@@ -11,8 +11,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core.scrapers.anac_scraper import ANACScraper
 # from data.province_italia import PROVINCE_ITALIA
-# from core.rag.rag_handler import LegalRAGHandler
-# from core.chat.llm_handler import LLMHandler, chat_with_rag
+# # from core.rag.rag_handler import LegalRAGHandler
+# # from core.chat.llm_handler import LLMHandler, chat_with_rag
 import os
 
 # ============================================================================
@@ -30,24 +30,24 @@ st.set_page_config(
 # INIT SESSION STATE
 # ============================================================================
 
-if "rag_engine" not in st.session_state:
-    st.session_state.rag_engine = LegalRAGHandler(kb_dir="data/kb")
+# if "rag_engine" not in st.session_state:
+#         st.session_state.rag_engine = LegalRAGHandler(kb_dir="data/kb")
 
 if "scraper" not in st.session_state:
     st.session_state.scraper = ANACScraper()
     st.session_state.bandi_cache = {}
 
-if "llm_handler" not in st.session_state:
-    from dotenv import load_dotenv
-    load_dotenv(override=True)
-
-    groq_key = os.getenv("GROQ_API_KEY")
-    print(f"🔍 DEBUG: GROQ_API_KEY trovata (primi 10 char): {groq_key[:10] if groq_key else 'NESSUNA'}")
-
-    forced_model = "llama-3.1-8b-instant"
-    print(f"🔧 FORCED MODEL: {forced_model}")
-
-    st.session_state.llm_handler = LLMHandler()
+# if "llm_handler" not in st.session_state:
+#     from dotenv import load_dotenv
+#     load_dotenv(override=True)
+# 
+#     groq_key = os.getenv("GROQ_API_KEY")
+#     print(f"🔍 DEBUG: GROQ_API_KEY trovata (primi 10 char): {groq_key[:10] if groq_key else 'NESSUNA'}")
+# 
+#     forced_model = "llama-3.1-8b-instant"
+#     print(f"🔧 FORCED MODEL: {forced_model}")
+# 
+#     st.session_state.llm_handler = LLMHandler()
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
@@ -102,12 +102,12 @@ with st.sidebar:
     st.markdown("---")
     
     # RAG Stats
-    st.subheader("📚 Knowledge Base")
-    
-    st.markdown("""
-    **Sistema RAG Attivo:**
-    - 📄 **Documenti:** 3 PDF normativi
-    - 💾 **Vector Store:** Supabase (88 chunks)
+#     st.subheader("📚 Knowledge Base")
+#     
+#     st.markdown("""
+#     **Sistema RAG Attivo:**
+#     - 📄 **Documenti:** 3 PDF normativi
+#     - 💾 **Vector Store:** Supabase (88 chunks)
     - 🔍 **Embeddings:** Sentence Transformers
     - 🤖 **LLM:** Groq Llama 3.1 70B
     - ✅ **Citations:** Automatiche
@@ -168,12 +168,7 @@ if page == "Chat Assistente":
         with st.chat_message("assistant"):
             with st.spinner("🔍 Analisi in corso..."):
                 try:
-                    answer, sources = chat_with_rag(
-                        user_input,
-                        st.session_state.chat_history,
-                        rag_engine=st.session_state.rag_engine,
-                        llm_handler=st.session_state.llm_handler
-                    )
+                    answer = "?? Sistema RAG in manutenzione. Usa Scraper ANAC e Upload SOA."`nsources = []
                     
                     st.markdown(answer)
                     
