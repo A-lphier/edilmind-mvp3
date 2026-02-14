@@ -4,5 +4,6 @@ supabase
 groq
 python-dotenv
 PyPDF2
+PyMuPDF
 beautifulsoup4
 requests
