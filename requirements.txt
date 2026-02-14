@@ -9,6 +9,7 @@ requests
 unstructured
 pdfminer.six
 pillow-heif
+pi-heif
 opencv-python-headless
 nltk
 filetype
