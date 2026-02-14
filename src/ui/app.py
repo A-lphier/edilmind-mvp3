@@ -63,7 +63,7 @@ elif "Scraper" in page:
     
     if submit:
         with st.spinner("Ricerca in corso..."):
-            bandi = st.session_state.scraper.search(keywords, max_results)
+            bandi = st.session_state.scraper.search_bandi(keywords, max_results)
             st.session_state.bandi_df = pd.DataFrame(bandi)
             st.success(f"? Trovati {len(bandi)} bandi!")
     
